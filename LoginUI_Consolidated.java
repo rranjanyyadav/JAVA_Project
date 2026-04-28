@@ -479,24 +479,27 @@ class StudentDashboard {
 // ==================== TEACHER DASHBOARD ====================
 
 /**
- * Modern Teacher Dashboard UI for updating student information.
+ * Modern Teacher Dashboard UI for adding students and updating student information with search.
  */
 class TeacherDashboard {
-    private static final int WINDOW_WIDTH = 500;
-    private static final int WINDOW_HEIGHT = 450;
+    private static final int WINDOW_WIDTH = 550;
+    private static final int WINDOW_HEIGHT = 700;
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
     private static final Color BUTTON_COLOR = new Color(155, 89, 182);
+    private static final Color SUCCESS_COLOR = new Color(46, 204, 113);
     
     private AuthManager authManager;
     private StudentManager studentManager;
     private TeacherManager teacherManager;
+    private Student currentStudent;
 
     public TeacherDashboard(StudentManager manager, AuthManager authManager,
                            StudentManager studentManager, TeacherManager teacherManager) {
         this.authManager = authManager;
         this.studentManager = studentManager;
         this.teacherManager = teacherManager;
+        this.currentStudent = null;
         
         JFrame frame = new JFrame("Teacher Dashboard");
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -513,118 +516,285 @@ class TeacherDashboard {
         headerPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 70));
         headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 15));
 
-        JLabel titleLabel = new JLabel("Update Student ID");
+        JLabel titleLabel = new JLabel("Teacher Dashboard");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
         headerPanel.add(titleLabel);
 
-        JPanel formPanel = new JPanel();
-        formPanel.setBackground(Color.WHITE);
-        formPanel.setLayout(new GridBagLayout());
-        formPanel.setBorder(new EmptyBorder(40, 40, 40, 40));
+        JPanel scrollablePanel = new JPanel();
+        scrollablePanel.setBackground(Color.WHITE);
+        scrollablePanel.setLayout(new GridBagLayout());
+        scrollablePanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 0, 15, 0);
+        gbc.insets = new Insets(10, 0, 10, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
 
+        // ===== SEARCH SECTION =====
         gbc.gridy = 0;
-        JLabel idLabel = new JLabel("Current Student ID:");
-        idLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        idLabel.setForeground(PRIMARY_COLOR);
-        formPanel.add(idLabel, gbc);
+        JLabel searchTitle = new JLabel("Search & Update Student");
+        searchTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        searchTitle.setForeground(PRIMARY_COLOR);
+        scrollablePanel.add(searchTitle, gbc);
 
         gbc.gridy = 1;
-        JTextField idField = createStyledTextField();
-        formPanel.add(idField, gbc);
+        JLabel searchIdLabel = new JLabel("Enter Student ID to Search:");
+        searchIdLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(searchIdLabel, gbc);
 
         gbc.gridy = 2;
-        JLabel newIdLabel = new JLabel("New Student ID:");
-        newIdLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        newIdLabel.setForeground(PRIMARY_COLOR);
-        formPanel.add(newIdLabel, gbc);
+        JPanel searchPanel = new JPanel();
+        searchPanel.setBackground(Color.WHITE);
+        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+        
+        JTextField searchIdField = createStyledTextField();
+        searchPanel.add(searchIdField);
+        searchPanel.add(Box.createHorizontalStrut(5));
+        
+        JButton searchBtn = createSmallButton("Search", PRIMARY_COLOR);
+        searchPanel.add(searchBtn);
+        scrollablePanel.add(searchPanel, gbc);
 
+        // Display Section
         gbc.gridy = 3;
-        JTextField newIdField = createStyledTextField();
-        formPanel.add(newIdField, gbc);
+        gbc.insets = new Insets(20, 0, 10, 0);
+        JLabel detailsTitle = new JLabel("Student Details");
+        detailsTitle.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        detailsTitle.setForeground(PRIMARY_COLOR);
+        scrollablePanel.add(detailsTitle, gbc);
 
+        // Name field
         gbc.gridy = 4;
-        gbc.insets = new Insets(25, 0, 15, 0);
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        buttonPanel.setBackground(Color.WHITE);
+        gbc.insets = new Insets(10, 0, 10, 0);
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(nameLabel, gbc);
 
-        JButton updateBtn = createStyledButton("Update Student", BUTTON_COLOR);
-        updateBtn.addActionListener(e -> handleUpdate(frame, idField, newIdField, manager));
+        gbc.gridy = 5;
+        JTextField nameField = createStyledTextField();
+        nameField.setEnabled(false);
+        scrollablePanel.add(nameField, gbc);
 
-        JButton addStudentsBtn = createStyledButton("Add Students", new Color(46, 204, 113));
+        // Current ID field
+        gbc.gridy = 6;
+        JLabel currentIdLabel = new JLabel("Current Student ID:");
+        currentIdLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(currentIdLabel, gbc);
+
+        gbc.gridy = 7;
+        JTextField currentIdField = createStyledTextField();
+        currentIdField.setEnabled(false);
+        scrollablePanel.add(currentIdField, gbc);
+
+        // Semester field
+        gbc.gridy = 8;
+        JLabel semesterLabel = new JLabel("Semester:");
+        semesterLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(semesterLabel, gbc);
+
+        gbc.gridy = 9;
+        JTextField semesterField = createStyledTextField();
+        scrollablePanel.add(semesterField, gbc);
+
+        // ===== EDIT SECTION =====
+        gbc.gridy = 10;
+        gbc.insets = new Insets(20, 0, 10, 0);
+        JLabel editTitle = new JLabel("Edit Student Information");
+        editTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        editTitle.setForeground(PRIMARY_COLOR);
+        scrollablePanel.add(editTitle, gbc);
+
+        // New Name
+        gbc.gridy = 11;
+        gbc.insets = new Insets(10, 0, 10, 0);
+        JLabel newNameLabel = new JLabel("New Name:");
+        newNameLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(newNameLabel, gbc);
+
+        gbc.gridy = 12;
+        JTextField newNameField = createStyledTextField();
+        scrollablePanel.add(newNameField, gbc);
+
+        // New ID
+        gbc.gridy = 13;
+        JLabel newIdLabel = new JLabel("New Student ID:");
+        newIdLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(newIdLabel, gbc);
+
+        gbc.gridy = 14;
+        JTextField newIdField = createStyledTextField();
+        scrollablePanel.add(newIdField, gbc);
+
+        // New Semester
+        gbc.gridy = 15;
+        JLabel newSemesterLabel = new JLabel("New Semester:");
+        newSemesterLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        scrollablePanel.add(newSemesterLabel, gbc);
+
+        gbc.gridy = 16;
+        JTextField newSemesterField = createStyledTextField();
+        scrollablePanel.add(newSemesterField, gbc);
+
+        // ===== BUTTONS =====
+        gbc.gridy = 17;
+        gbc.insets = new Insets(25, 0, 10, 0);
+        JPanel actionButtonPanel = new JPanel();
+        actionButtonPanel.setBackground(Color.WHITE);
+        actionButtonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+
+        JButton updateBtn = createStyledButton("Update", BUTTON_COLOR);
+        updateBtn.addActionListener(e -> handleUpdate(frame, searchIdField, newNameField, newIdField, newSemesterField, manager));
+
+        JButton clearBtn = createStyledButton("Clear", new Color(189, 195, 199));
+        clearBtn.addActionListener(e -> clearFields(searchIdField, nameField, currentIdField, semesterField, newNameField, newIdField, newSemesterField));
+
+        actionButtonPanel.add(updateBtn);
+        actionButtonPanel.add(clearBtn);
+        scrollablePanel.add(actionButtonPanel, gbc);
+
+        // Add Students Button
+        gbc.gridy = 18;
+        gbc.insets = new Insets(10, 0, 10, 0);
+        JButton addStudentsBtn = createStyledButton("Add Students", SUCCESS_COLOR);
         addStudentsBtn.addActionListener(e -> new StudentEntryUI(manager, frame));
+        scrollablePanel.add(addStudentsBtn, gbc);
 
+        // Logout Button
+        gbc.gridy = 19;
         JButton logoutBtn = createStyledButton("Logout", new Color(231, 76, 60));
         logoutBtn.addActionListener(e -> {
             frame.dispose();
             new LoginUI(authManager, studentManager, teacherManager);
         });
+        scrollablePanel.add(logoutBtn, gbc);
 
-        buttonPanel.add(updateBtn);
-        buttonPanel.add(addStudentsBtn);
-        buttonPanel.add(logoutBtn);
-        formPanel.add(buttonPanel, gbc);
+        // Setup search button action
+        searchBtn.addActionListener(e -> {
+            try {
+                String searchIdText = searchIdField.getText().trim();
+                if (searchIdText.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please enter a Student ID to search", "Input Error", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                int searchId = Integer.parseInt(searchIdText);
+                Student foundStudent = manager.findById(searchId);
+
+                if (foundStudent != null) {
+                    currentStudent = foundStudent;
+                    nameField.setText(foundStudent.getName());
+                    currentIdField.setText(String.valueOf(foundStudent.getId()));
+                    semesterField.setText(String.valueOf(foundStudent.getSemester()));
+                    
+                    newNameField.setText(foundStudent.getName());
+                    newIdField.setText(String.valueOf(foundStudent.getId()));
+                    newSemesterField.setText(String.valueOf(foundStudent.getSemester()));
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Student not found with ID: " + searchId, "Not Found", JOptionPane.WARNING_MESSAGE);
+                    clearFields(searchIdField, nameField, currentIdField, semesterField, newNameField, newIdField, newSemesterField);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid numeric ID", "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JScrollPane scrollPane = new JScrollPane(scrollablePanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         frame.add(mainPanel);
         frame.setVisible(true);
     }
 
-    private void handleUpdate(JFrame frame, JTextField idField, JTextField newIdField, StudentManager manager) {
+    private void handleUpdate(JFrame frame, JTextField searchIdField, JTextField newNameField, 
+                             JTextField newIdField, JTextField newSemesterField, StudentManager manager) {
         try {
-            String idText = idField.getText().trim();
-            String newIdText = newIdField.getText().trim();
+            if (currentStudent == null) {
+                JOptionPane.showMessageDialog(frame, "Please search for a student first", "No Student Selected", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-            if (idText.isEmpty() || newIdText.isEmpty()) {
+            String newName = newNameField.getText().trim();
+            String newIdText = newIdField.getText().trim();
+            String newSemesterText = newSemesterField.getText().trim();
+
+            if (newName.isEmpty() || newIdText.isEmpty() || newSemesterText.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please fill in all fields", "Input Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            int id = Integer.parseInt(idText);
             int newId = Integer.parseInt(newIdText);
+            int newSemester = Integer.parseInt(newSemesterText);
 
-            if (id == newId) {
-                JOptionPane.showMessageDialog(frame, "New ID must be different from current ID", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            if (newSemester < 1 || newSemester > 8) {
+                JOptionPane.showMessageDialog(frame, "Semester must be between 1 and 8", "Invalid Input", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            manager.updateById(id, newId);
-            JOptionPane.showMessageDialog(frame, "Student ID updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            manager.updateStudent(currentStudent.getId(), newName, newId, newSemester);
+            JOptionPane.showMessageDialog(frame, "Student updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             
-            idField.setText("");
-            newIdField.setText("");
+            currentStudent = null;
+            searchIdField.setText("");
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter valid numeric IDs", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for ID and Semester", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void clearFields(JTextField... fields) {
+        for (JTextField field : fields) {
+            field.setText("");
+        }
+        currentStudent = null;
     }
 
     private JTextField createStyledTextField() {
         JTextField field = new JTextField();
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         field.setBorder(new CompoundBorder(
             new LineBorder(new Color(189, 195, 199), 1),
             new EmptyBorder(8, 8, 8, 8)
         ));
-        field.setPreferredSize(new Dimension(300, 35));
+        field.setPreferredSize(new Dimension(300, 32));
         return field;
     }
 
     private JButton createStyledButton(String text, Color color) {
         JButton btn = new JButton(text);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btn.setBackground(color);
         btn.setForeground(Color.WHITE);
-        btn.setBorder(new EmptyBorder(10, 0, 10, 0));
-        btn.setPreferredSize(new Dimension(300, 40));
+        btn.setBorder(new EmptyBorder(10, 20, 10, 20));
+        btn.setPreferredSize(new Dimension(250, 38));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                btn.setBackground(color.darker());
+            }
+            public void mouseExited(MouseEvent evt) {
+                btn.setBackground(color);
+            }
+        });
+        
+        return btn;
+    }
+
+    private JButton createSmallButton(String text, Color color) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setBorder(new EmptyBorder(5, 15, 5, 15));
+        btn.setPreferredSize(new Dimension(80, 32));
+        btn.setMaximumSize(new Dimension(80, 32));
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         

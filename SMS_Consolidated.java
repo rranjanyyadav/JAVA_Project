@@ -345,6 +345,18 @@ class StudentManager {
             System.err.println("Error updating student in database: " + e.getMessage());
         }
     }
+
+    public void updateStudent(int oldId, String newName, int newId, int newSemester) {
+        for (Student student : students) {
+            if (student.getId() == oldId) {
+                student.setName(newName);
+                student.setId(newId);
+                student.setSemester(newSemester);
+                updateStudentInDatabase(student);
+                return;
+            }
+        }
+    }
 }
 
 /**
