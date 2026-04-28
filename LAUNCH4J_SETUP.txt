@@ -1,0 +1,189 @@
+# Launch4j Setup Guide - Student Management System
+
+## Step-by-Step Instructions to Create SMS_App.exe
+
+### Prerequisites
+- Java installed on your system
+- Launch4j downloaded and installed from: https://launch4j.sourceforge.net/
+
+---
+
+## Step 1: Create the JAR File
+
+Run the build script to create SMS_App.jar:
+
+```bash
+cd d:\JAVA PROJECT
+build.bat
+```
+
+This will:
+- Compile all Java files
+- Create SMS_App.jar with proper manifest
+- Verify all dependencies exist
+
+**Output**: SMS_App.jar in the project directory
+
+---
+
+## Step 2: Install Launch4j
+
+1. Download Launch4j from: https://launch4j.sourceforge.net/
+2. Run the installer (Launch4jSetup-3.50.exe or latest version)
+3. Choose installation location (e.g., C:\Launch4j)
+
+---
+
+## Step 3: Configure Launch4j
+
+1. **Open Launch4j** → Click "File" → "New"
+
+2. **Output Tab**:
+   - **Output file**: `d:\JAVA PROJECT\SMS_App.exe`
+   - **Wrap jar**: ✓ (checked)
+
+3. **Jar Tab**:
+   - **Jar file**: `d:\JAVA PROJECT\SMS_App.jar`
+   - **Classpath**: Add the following:
+     - sqlite-jdbc.jar
+     - slf4j-api.jar
+     - slf4j-simple.jar
+
+4. **Main Class Tab**:
+   - **Main class**: `SMS_Consolidated`
+
+5. **JRE Tab**:
+   - **Min JRE version**: `11.0.0`
+   - **Max JRE version**: (leave empty for latest)
+   - **JRE path**: (leave empty - uses system Java)
+
+6. **Splash Tab** (Optional):
+   - Leave as default or add your own splash screen
+
+7. **Version Info Tab** (Optional):
+   - **File version**: 1.0.0.0
+   - **Product version**: 1.0.0.0
+   - **Product name**: Student Management System
+   - **Company name**: Your School/Organization
+   - **Internal name**: SMS_App
+   - **Original filename**: SMS_App.exe
+   - **Description**: Student Management System for Schools
+
+8. **Save Configuration**:
+   - File → Save As → `d:\JAVA PROJECT\SMS_App.xml`
+
+---
+
+## Step 4: Build the Executable
+
+1. Click the "Build wrapper" button (green play button)
+2. Wait for the build to complete
+3. Launch4j will show: "Wrapper created successfully"
+4. Check `d:\JAVA PROJECT\SMS_App.exe` exists
+
+---
+
+## Step 5: Test the Executable
+
+Run the generated SMS_App.exe:
+
+```bash
+d:\JAVA PROJECT\SMS_App.exe
+```
+
+The Student Management System GUI should launch!
+
+---
+
+## Troubleshooting
+
+### "Could not find Java Runtime"
+- Solution: Install Java JDK/JRE on the system
+- Launch4j looks for Java in: PATH environment variable
+- Or specify JRE path in Launch4j config
+
+### "Main class not found"
+- Verify Main class is set to: `SMS_Consolidated`
+- Make sure SMS_App.jar contains the class
+
+### Dependencies missing errors
+- Add all three JARs to the Classpath:
+  - sqlite-jdbc.jar
+  - slf4j-api.jar
+  - slf4j-simple.jar
+
+### Database file not found
+- The app looks for `sms_database.db` in the current directory
+- Create a folder for the app that includes:
+  - SMS_App.exe
+  - sms_database.db (will be created on first run)
+
+---
+
+## Distribution
+
+Once SMS_App.exe is created:
+
+1. **Standalone EXE** (Requires Java installed on user's system):
+   - Just distribute: SMS_App.exe
+   - Users need Java 11+ installed
+
+2. **Portable Package** (Includes Java):
+   - Use "Bundle JRE" in Launch4j settings
+   - Includes Java Runtime (~100MB larger)
+   - Works on any Windows without Java installed
+
+---
+
+## Optional: Advanced Setup - Bundle JRE
+
+To create a fully standalone executable with Java included:
+
+1. In Launch4j, go to **JRE Tab**
+2. Check: **"Bundle JRE"**
+3. Set **JRE path**: Point to your local JDK/JRE folder
+4. Build the executable again
+
+**Result**: Larger file (~150-200MB) but runs on any Windows without Java!
+
+---
+
+## Command Line Creation (Alternative)
+
+If you prefer the command line:
+
+```batch
+@echo off
+REM Run this in Launch4j installation directory
+launch4j.exe --headless --config-file "d:\JAVA PROJECT\SMS_App.xml"
+```
+
+---
+
+## Final Checklist
+
+- [✓] SMS_App.jar created
+- [✓] Launch4j installed
+- [✓] Configuration saved as SMS_App.xml
+- [✓] SMS_App.exe built successfully
+- [✓] Executable tested and working
+- [✓] Ready to distribute!
+
+---
+
+## Share Your App
+
+Now you can:
+- **Email SMS_App.exe** to others
+- **Upload to GitHub releases**
+- **Share via cloud storage** (Google Drive, OneDrive)
+- **Distribute in your school** without requiring Java knowledge!
+
+**Demo Credentials:**
+- Username: student1 / Password: 123
+- Username: teacher1 / Password: 123
+- Username: admin1 / Password: 123
+
+---
+
+Need help? Check Launch4j documentation: https://launch4j.sourceforge.net/docs.html

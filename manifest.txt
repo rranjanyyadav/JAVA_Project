@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: SMS_Consolidated
+Class-Path: sqlite-jdbc.jar slf4j-api.jar slf4j-simple.jar
+Created-By: Student Management System Build
