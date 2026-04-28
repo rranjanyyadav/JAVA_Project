@@ -205,15 +205,17 @@ class LoginUI {
 // ==================== ADMIN DASHBOARD ====================
 
 /**
- * Modern Admin Dashboard UI for administrative functions.
+ * Enhanced Admin Dashboard with all administrative features.
  */
 class AdminDashboard {
-    private static final int WINDOW_WIDTH = 600;
-    private static final int WINDOW_HEIGHT = 600;
+    private static final int WINDOW_WIDTH = 700;
+    private static final int WINDOW_HEIGHT = 750;
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
     private static final Color ACCENT_COLOR = new Color(230, 126, 34);
-    private static final Color BUTTON_COLOR = new Color(52, 152, 219);
+    private static final Color SUCCESS_COLOR = new Color(46, 204, 113);
+    private static final Color WARNING_COLOR = new Color(241, 196, 15);
+    private static final Color DANGER_COLOR = new Color(231, 76, 60);
     
     private TeacherManager teacherManager;
     private AuthManager authManager;
@@ -234,95 +236,295 @@ class AdminDashboard {
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setLayout(new BorderLayout());
 
+        // Header
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(PRIMARY_COLOR);
         headerPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 70));
         headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 15));
 
-        JLabel titleLabel = new JLabel("Admin Panel");
+        JLabel titleLabel = new JLabel("Administrator Dashboard");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
         titleLabel.setForeground(Color.WHITE);
         headerPanel.add(titleLabel);
 
+        // Scrollable Content Panel
         JPanel contentPanel = new JPanel();
-        contentPanel.setBackground(BACKGROUND_COLOR);
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setBorder(new EmptyBorder(30, 40, 30, 40));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setLayout(new GridBagLayout());
+        contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel welcomePanel = new JPanel();
-        welcomePanel.setBackground(Color.WHITE);
-        welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
-        welcomePanel.setBorder(new LineBorder(new Color(189, 195, 199), 1));
-        welcomePanel.add(Box.createVerticalStrut(20));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
 
+        // Welcome Section
+        gbc.gridy = 0;
         JLabel welcomeLabel = new JLabel("Welcome to Admin Panel");
         welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         welcomeLabel.setForeground(PRIMARY_COLOR);
-        welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        welcomePanel.add(welcomeLabel);
+        contentPanel.add(welcomeLabel, gbc);
 
-        welcomePanel.add(Box.createVerticalStrut(15));
+        gbc.gridy = 1;
+        JLabel descLabel = new JLabel("Manage all system aspects and user data");
+        descLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        descLabel.setForeground(new Color(127, 140, 141));
+        contentPanel.add(descLabel, gbc);
 
-        JLabel descLabel = new JLabel("Administrative Features:");
-        descLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        descLabel.setForeground(ACCENT_COLOR);
-        descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        welcomePanel.add(descLabel);
+        // Feature 1: Add Teachers
+        gbc.gridy = 2;
+        gbc.insets = new Insets(20, 10, 5, 10);
+        JLabel teachersLabel = new JLabel("👥 Teacher Management");
+        teachersLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        teachersLabel.setForeground(ACCENT_COLOR);
+        contentPanel.add(teachersLabel, gbc);
 
-        welcomePanel.add(Box.createVerticalStrut(15));
-
-        String[] features = {
-            "• Add and manage teachers",
-            "• View and manage student records",
-            "• Monitor teacher activities",
-            "• Generate system reports",
-            "• Configure system settings"
-        };
-
-        for (String feature : features) {
-            JLabel featureLabel = new JLabel(feature);
-            featureLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            featureLabel.setForeground(new Color(52, 73, 94));
-            featureLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            welcomePanel.add(featureLabel);
-        }
-
-        welcomePanel.add(Box.createVerticalStrut(20));
-
-        JButton addTeachersBtn = createStyledButton("Add Teachers", BUTTON_COLOR);
-        addTeachersBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gbc.gridy = 3;
+        gbc.insets = new Insets(5, 10, 15, 10);
+        JButton addTeachersBtn = createFeatureButton("Add New Teachers", ACCENT_COLOR);
         addTeachersBtn.addActionListener(e -> new TeacherEntryUI(teacherManager, authManager, frame));
-        welcomePanel.add(addTeachersBtn);
+        contentPanel.add(addTeachersBtn, gbc);
 
-        welcomePanel.add(Box.createVerticalStrut(10));
+        // Feature 2: View Teachers
+        gbc.gridy = 4;
+        JButton viewTeachersBtn = createFeatureButton("View All Teachers", WARNING_COLOR);
+        viewTeachersBtn.addActionListener(e -> showTeachersList());
+        contentPanel.add(viewTeachersBtn, gbc);
 
-        JButton logoutBtn = createStyledButton("Logout", new Color(231, 76, 60));
-        logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Feature 3: View Students
+        gbc.gridy = 5;
+        gbc.insets = new Insets(20, 10, 5, 10);
+        JLabel studentsLabel = new JLabel("📚 Student Management");
+        studentsLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        studentsLabel.setForeground(SUCCESS_COLOR);
+        contentPanel.add(studentsLabel, gbc);
+
+        gbc.gridy = 6;
+        gbc.insets = new Insets(5, 10, 15, 10);
+        JButton viewStudentsBtn = createFeatureButton("View All Students", SUCCESS_COLOR);
+        viewStudentsBtn.addActionListener(e -> new StudentDashboard(studentManager, authManager, studentManager, teacherManager));
+        contentPanel.add(viewStudentsBtn, gbc);
+
+        // Feature 4: System Statistics
+        gbc.gridy = 7;
+        gbc.insets = new Insets(20, 10, 5, 10);
+        JLabel reportsLabel = new JLabel("📊 System Reports");
+        reportsLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        reportsLabel.setForeground(new Color(155, 89, 182));
+        contentPanel.add(reportsLabel, gbc);
+
+        gbc.gridy = 8;
+        gbc.insets = new Insets(5, 10, 15, 10);
+        JButton statsBtn = createFeatureButton("View System Statistics", new Color(155, 89, 182));
+        statsBtn.addActionListener(e -> showSystemStatistics());
+        contentPanel.add(statsBtn, gbc);
+
+        // Feature 5: Generate Report
+        gbc.gridy = 9;
+        JButton reportBtn = createFeatureButton("Generate Report", new Color(52, 152, 219));
+        reportBtn.addActionListener(e -> generateReport());
+        contentPanel.add(reportBtn, gbc);
+
+        // Feature 6: Settings
+        gbc.gridy = 10;
+        gbc.insets = new Insets(20, 10, 5, 10);
+        JLabel settingsLabel = new JLabel("⚙️ System Settings");
+        settingsLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        settingsLabel.setForeground(new Color(52, 73, 94));
+        contentPanel.add(settingsLabel, gbc);
+
+        gbc.gridy = 11;
+        gbc.insets = new Insets(5, 10, 15, 10);
+        JButton settingsBtn = createFeatureButton("Configure Settings", new Color(52, 73, 94));
+        settingsBtn.addActionListener(e -> showSettings());
+        contentPanel.add(settingsBtn, gbc);
+
+        // Logout Button
+        gbc.gridy = 12;
+        gbc.insets = new Insets(30, 10, 10, 10);
+        JButton logoutBtn = createFeatureButton("Logout", DANGER_COLOR);
         logoutBtn.addActionListener(e -> {
             frame.dispose();
             new LoginUI(authManager, studentManager, teacherManager);
         });
-        welcomePanel.add(logoutBtn);
+        contentPanel.add(logoutBtn, gbc);
 
-        welcomePanel.add(Box.createVerticalStrut(10));
+        // Spacer
+        gbc.gridy = 13;
+        gbc.weighty = 1.0;
+        contentPanel.add(Box.createVerticalGlue(), gbc);
 
-        contentPanel.add(welcomePanel);
-        contentPanel.add(Box.createVerticalGlue());
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         frame.add(mainPanel);
         frame.setVisible(true);
     }
 
-    private JButton createStyledButton(String text, Color color) {
+    private void showTeachersList() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TEACHERS IN SYSTEM\n");
+        sb.append("==================\n\n");
+
+        java.util.List<Teacher> teachers = teacherManager.getAllTeachers();
+        if (teachers.isEmpty()) {
+            sb.append("No teachers registered yet.");
+        } else {
+            for (Teacher t : teachers) {
+                sb.append(String.format("• %s\n", t.getName()));
+                sb.append(String.format("  ID: %d | Subject: %s\n\n", t.getId(), t.getSubject()));
+            }
+        }
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Courier New", Font.PLAIN, 11));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(400, 300));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "Teachers List", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showSystemStatistics() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SYSTEM STATISTICS\n");
+        sb.append("=================\n\n");
+
+        int studentCount = studentManager.getAllStudents().size();
+        int teacherCount = teacherManager.getAllTeachers().size();
+        int userCount = authManager.getAllUsers().size();
+
+        sb.append(String.format("Total Students: %d\n", studentCount));
+        sb.append(String.format("Total Teachers: %d\n", teacherCount));
+        sb.append(String.format("Total Users: %d\n\n", userCount));
+
+        sb.append("Student Distribution by Semester:\n");
+        java.util.Map<Integer, Integer> semesterCount = new java.util.HashMap<>();
+        for (Student s : studentManager.getAllStudents()) {
+            semesterCount.put(s.getSemester(), semesterCount.getOrDefault(s.getSemester(), 0) + 1);
+        }
+        if (semesterCount.isEmpty()) {
+            sb.append("No students registered\n");
+        } else {
+            for (int sem = 1; sem <= 8; sem++) {
+                int count = semesterCount.getOrDefault(sem, 0);
+                sb.append(String.format("  Semester %d: %d students\n", sem, count));
+            }
+        }
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Courier New", Font.PLAIN, 11));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(400, 350));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "System Statistics", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void generateReport() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SYSTEM REPORT\n");
+        sb.append("=============\n");
+        sb.append("Generated: ").append(new java.util.Date()).append("\n\n");
+
+        sb.append("STUDENT RECORDS:\n");
+        sb.append("----------------\n");
+        java.util.List<Student> students = studentManager.getAllStudents();
+        if (students.isEmpty()) {
+            sb.append("No students in system\n");
+        } else {
+            sb.append(String.format("%-30s %-10s %s\n", "Name", "ID", "Semester"));
+            sb.append("----------------------------------------------\n");
+            for (Student s : students) {
+                sb.append(String.format("%-30s %-10d %d\n", s.getName(), s.getId(), s.getSemester()));
+            }
+        }
+
+        sb.append("\n\nTEACHER RECORDS:\n");
+        sb.append("----------------\n");
+        java.util.List<Teacher> teachers = teacherManager.getAllTeachers();
+        if (teachers.isEmpty()) {
+            sb.append("No teachers in system\n");
+        } else {
+            sb.append(String.format("%-30s %-10s %s\n", "Name", "ID", "Subject"));
+            sb.append("----------------------------------------------\n");
+            for (Teacher t : teachers) {
+                sb.append(String.format("%-30s %-10d %s\n", t.getName(), t.getId(), t.getSubject()));
+            }
+        }
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Courier New", Font.PLAIN, 10));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(500, 400));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "System Report", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showSettings() {
+        JDialog settingsDialog = new JDialog();
+        settingsDialog.setTitle("System Settings");
+        settingsDialog.setSize(400, 300);
+        settingsDialog.setLocationRelativeTo(null);
+        settingsDialog.setResizable(false);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("System Configuration");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        titleLabel.setForeground(PRIMARY_COLOR);
+        panel.add(titleLabel);
+
+        panel.add(Box.createVerticalStrut(15));
+
+        JLabel db = new JLabel("Database: SQLite");
+        db.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(db);
+
+        JLabel dbFile = new JLabel("File: sms_database.db");
+        dbFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(dbFile);
+
+        panel.add(Box.createVerticalStrut(10));
+
+        JLabel appVersion = new JLabel("Application: Student Management System v1.0");
+        appVersion.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(appVersion);
+
+        JLabel javaVersion = new JLabel("Runtime: Java " + System.getProperty("java.version"));
+        javaVersion.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(javaVersion);
+
+        panel.add(Box.createVerticalStrut(20));
+
+        JButton closeBtn = new JButton("Close");
+        closeBtn.setBackground(PRIMARY_COLOR);
+        closeBtn.setForeground(Color.WHITE);
+        closeBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        closeBtn.setPreferredSize(new Dimension(100, 35));
+        closeBtn.addActionListener(e -> settingsDialog.dispose());
+        panel.add(closeBtn);
+
+        settingsDialog.add(panel);
+        settingsDialog.setVisible(true);
+    }
+
+    private JButton createFeatureButton(String text, Color color) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btn.setBackground(color);
         btn.setForeground(Color.WHITE);
-        btn.setBorder(new EmptyBorder(8, 20, 8, 20));
-        btn.setPreferredSize(new Dimension(150, 35));
+        btn.setBorder(new EmptyBorder(10, 15, 10, 15));
+        btn.setPreferredSize(new Dimension(250, 40));
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         

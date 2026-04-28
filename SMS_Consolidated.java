@@ -256,6 +256,10 @@ class AuthManager {
         }
         return null;
     }
+
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users);
+    }
 }
 
 /**
