@@ -33,9 +33,9 @@ class LoginUI {
     private static final String ROLE_ADMIN = "admin";
     private static final int WINDOW_WIDTH = 450;
     private static final int WINDOW_HEIGHT = 500;
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color PRIMARY_COLOR = new Color(44, 62, 80);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
-    private static final Color BUTTON_COLOR = new Color(46, 204, 113);
+    private static final Color BUTTON_COLOR = new Color(44, 62, 80);
 
     private StudentManager studentManager;
     private TeacherManager teacherManager;
@@ -210,12 +210,12 @@ class LoginUI {
 class AdminDashboard {
     private static final int WINDOW_WIDTH = 700;
     private static final int WINDOW_HEIGHT = 750;
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color PRIMARY_COLOR = new Color(44, 62, 80);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
-    private static final Color ACCENT_COLOR = new Color(230, 126, 34);
-    private static final Color SUCCESS_COLOR = new Color(46, 204, 113);
-    private static final Color WARNING_COLOR = new Color(241, 196, 15);
-    private static final Color DANGER_COLOR = new Color(231, 76, 60);
+    private static final Color ACCENT_COLOR = new Color(149, 165, 176);
+    private static final Color SUCCESS_COLOR = new Color(44, 62, 80);
+    private static final Color WARNING_COLOR = new Color(127, 140, 141);
+    private static final Color DANGER_COLOR = new Color(52, 73, 94);
     
     private TeacherManager teacherManager;
     private AuthManager authManager;
@@ -281,13 +281,13 @@ class AdminDashboard {
 
         gbc.gridy = 3;
         gbc.insets = new Insets(5, 10, 15, 10);
-        JButton addTeachersBtn = createFeatureButton("Add New Teachers", ACCENT_COLOR);
+        JButton addTeachersBtn = createFeatureButton("Add New Teachers", PRIMARY_COLOR);
         addTeachersBtn.addActionListener(e -> new TeacherEntryUI(teacherManager, authManager, frame));
         contentPanel.add(addTeachersBtn, gbc);
 
         // Feature 2: View Teachers
         gbc.gridy = 4;
-        JButton viewTeachersBtn = createFeatureButton("View All Teachers", WARNING_COLOR);
+        JButton viewTeachersBtn = createFeatureButton("View All Teachers", ACCENT_COLOR);
         viewTeachersBtn.addActionListener(e -> showTeachersList());
         contentPanel.add(viewTeachersBtn, gbc);
 
@@ -296,12 +296,12 @@ class AdminDashboard {
         gbc.insets = new Insets(20, 10, 5, 10);
         JLabel studentsLabel = new JLabel("📚 Student Management");
         studentsLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        studentsLabel.setForeground(SUCCESS_COLOR);
+        studentsLabel.setForeground(ACCENT_COLOR);
         contentPanel.add(studentsLabel, gbc);
 
         gbc.gridy = 6;
         gbc.insets = new Insets(5, 10, 15, 10);
-        JButton viewStudentsBtn = createFeatureButton("View All Students", SUCCESS_COLOR);
+        JButton viewStudentsBtn = createFeatureButton("View All Students", PRIMARY_COLOR);
         viewStudentsBtn.addActionListener(e -> new StudentDashboard(studentManager, authManager, studentManager, teacherManager));
         contentPanel.add(viewStudentsBtn, gbc);
 
@@ -310,18 +310,18 @@ class AdminDashboard {
         gbc.insets = new Insets(20, 10, 5, 10);
         JLabel reportsLabel = new JLabel("📊 System Reports");
         reportsLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        reportsLabel.setForeground(new Color(155, 89, 182));
+        reportsLabel.setForeground(ACCENT_COLOR);
         contentPanel.add(reportsLabel, gbc);
 
         gbc.gridy = 8;
         gbc.insets = new Insets(5, 10, 15, 10);
-        JButton statsBtn = createFeatureButton("View System Statistics", new Color(155, 89, 182));
+        JButton statsBtn = createFeatureButton("View System Statistics", ACCENT_COLOR);
         statsBtn.addActionListener(e -> showSystemStatistics());
         contentPanel.add(statsBtn, gbc);
 
         // Feature 5: Generate Report
         gbc.gridy = 9;
-        JButton reportBtn = createFeatureButton("Generate Report", new Color(52, 152, 219));
+        JButton reportBtn = createFeatureButton("Generate Report", PRIMARY_COLOR);
         reportBtn.addActionListener(e -> generateReport());
         contentPanel.add(reportBtn, gbc);
 
@@ -330,12 +330,12 @@ class AdminDashboard {
         gbc.insets = new Insets(20, 10, 5, 10);
         JLabel settingsLabel = new JLabel("⚙️ System Settings");
         settingsLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        settingsLabel.setForeground(new Color(52, 73, 94));
+        settingsLabel.setForeground(ACCENT_COLOR);
         contentPanel.add(settingsLabel, gbc);
 
         gbc.gridy = 11;
         gbc.insets = new Insets(5, 10, 15, 10);
-        JButton settingsBtn = createFeatureButton("Configure Settings", new Color(52, 73, 94));
+        JButton settingsBtn = createFeatureButton("Configure Settings", ACCENT_COLOR);
         settingsBtn.addActionListener(e -> showSettings());
         contentPanel.add(settingsBtn, gbc);
 
@@ -550,9 +550,10 @@ class StudentDashboard {
     private static final int WINDOW_WIDTH = 700;
     private static final int WINDOW_HEIGHT = 500;
     private static final String[] COLUMN_NAMES = {"Name", "ID", "Semester"};
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color PRIMARY_COLOR = new Color(44, 62, 80);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
-    private static final Color BUTTON_COLOR = new Color(52, 152, 219);
+    private static final Color BUTTON_COLOR = new Color(44, 62, 80);
+    private static final Color ACCENT_COLOR = new Color(149, 165, 176);
     
     private AuthManager authManager;
     private StudentManager studentManager;
@@ -620,10 +621,10 @@ class StudentDashboard {
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-        JButton loadBtn = createStyledButton("Load Students", BUTTON_COLOR);
+        JButton loadBtn = createStyledButton("Load Students", PRIMARY_COLOR);
         loadBtn.addActionListener(e -> loadStudentsToTable(model, manager));
 
-        JButton logoutBtn = createStyledButton("Logout", new Color(231, 76, 60));
+        JButton logoutBtn = createStyledButton("Logout", ACCENT_COLOR);
         logoutBtn.addActionListener(e -> {
             frame.dispose();
             new LoginUI(authManager, studentManager, teacherManager);
@@ -686,10 +687,11 @@ class StudentDashboard {
 class TeacherDashboard {
     private static final int WINDOW_WIDTH = 550;
     private static final int WINDOW_HEIGHT = 700;
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color PRIMARY_COLOR = new Color(44, 62, 80);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
-    private static final Color BUTTON_COLOR = new Color(155, 89, 182);
-    private static final Color SUCCESS_COLOR = new Color(46, 204, 113);
+    private static final Color BUTTON_COLOR = new Color(44, 62, 80);
+    private static final Color SUCCESS_COLOR = new Color(44, 62, 80);
+    private static final Color ACCENT_COLOR = new Color(149, 165, 176);
     
     private AuthManager authManager;
     private StudentManager studentManager;
@@ -848,7 +850,7 @@ class TeacherDashboard {
         JButton updateBtn = createStyledButton("Update", BUTTON_COLOR);
         updateBtn.addActionListener(e -> handleUpdate(frame, searchIdField, newNameField, newIdField, newSemesterField, manager));
 
-        JButton clearBtn = createStyledButton("Clear", new Color(189, 195, 199));
+        JButton clearBtn = createStyledButton("Clear", ACCENT_COLOR);
         clearBtn.addActionListener(e -> clearFields(searchIdField, nameField, currentIdField, semesterField, newNameField, newIdField, newSemesterField));
 
         actionButtonPanel.add(updateBtn);
@@ -858,13 +860,13 @@ class TeacherDashboard {
         // Add Students Button
         gbc.gridy = 18;
         gbc.insets = new Insets(10, 0, 10, 0);
-        JButton addStudentsBtn = createStyledButton("Add Students", SUCCESS_COLOR);
+        JButton addStudentsBtn = createStyledButton("Add Students", PRIMARY_COLOR);
         addStudentsBtn.addActionListener(e -> new StudentEntryUI(manager, frame));
         scrollablePanel.add(addStudentsBtn, gbc);
 
         // Logout Button
         gbc.gridy = 19;
-        JButton logoutBtn = createStyledButton("Logout", new Color(231, 76, 60));
+        JButton logoutBtn = createStyledButton("Logout", ACCENT_COLOR);
         logoutBtn.addActionListener(e -> {
             frame.dispose();
             new LoginUI(authManager, studentManager, teacherManager);
@@ -1021,7 +1023,8 @@ class TeacherDashboard {
 class StudentEntryUI {
     private static final int WINDOW_WIDTH = 500;
     private static final int WINDOW_HEIGHT = 600;
-    private static final Color ACCENT_COLOR = new Color(41, 128, 185);
+    private static final Color ACCENT_COLOR = new Color(44, 62, 80);
+    private static final Color PRIMARY_COLOR = new Color(44, 62, 80);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
     private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 18);
     private static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 12);
@@ -1110,7 +1113,7 @@ class StudentEntryUI {
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
 
-        JButton addBtn = createStyledButton("Add Student", ACCENT_COLOR);
+        JButton addBtn = createStyledButton("Add Student", PRIMARY_COLOR);
         addBtn.addActionListener(e -> {
             addStudent(dialog, nameField, idField, semesterField);
             nameField.setText("");
@@ -1119,7 +1122,7 @@ class StudentEntryUI {
             nameField.requestFocus();
         });
 
-        JButton backBtn = createStyledButton("Back", new Color(149, 165, 166));
+        JButton backBtn = createStyledButton("Back", ACCENT_COLOR);
         backBtn.addActionListener(e -> dialog.dispose());
 
         buttonPanel.add(addBtn);
@@ -1236,7 +1239,8 @@ class StudentEntryUI {
 class TeacherEntryUI {
     private static final int WINDOW_WIDTH = 500;
     private static final int WINDOW_HEIGHT = 600;
-    private static final Color ACCENT_COLOR = new Color(41, 128, 185);
+    private static final Color ACCENT_COLOR = new Color(44, 62, 80);
+    private static final Color PRIMARY_COLOR = new Color(44, 62, 80);
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
     private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 18);
     private static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 12);
@@ -1353,7 +1357,7 @@ class TeacherEntryUI {
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
 
-        JButton addBtn = createStyledButton("Add Teacher", ACCENT_COLOR);
+        JButton addBtn = createStyledButton("Add Teacher", PRIMARY_COLOR);
         addBtn.addActionListener(e -> {
             addTeacher(dialog, nameField, idField, subjectField, usernameField, passwordField);
             nameField.setText("");
@@ -1364,7 +1368,7 @@ class TeacherEntryUI {
             nameField.requestFocus();
         });
 
-        JButton backBtn = createStyledButton("Back", new Color(149, 165, 166));
+        JButton backBtn = createStyledButton("Back", ACCENT_COLOR);
         backBtn.addActionListener(e -> dialog.dispose());
 
         buttonPanel.add(addBtn);
