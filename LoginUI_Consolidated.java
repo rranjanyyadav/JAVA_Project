@@ -40,11 +40,18 @@ class LoginUI {
     private StudentManager studentManager;
     private TeacherManager teacherManager;
     private AuthManager authManager;
+    private CourseManager courseManager;
+    private GradeManager gradeManager;
+    private AttendanceManager attendanceManager;
 
-    public LoginUI(AuthManager auth, StudentManager studentManager, TeacherManager teacherManager) {
+    public LoginUI(AuthManager auth, StudentManager studentManager, TeacherManager teacherManager, 
+                   CourseManager courseManager, GradeManager gradeManager, AttendanceManager attendanceManager) {
         this.authManager = auth;
         this.studentManager = studentManager;
         this.teacherManager = teacherManager;
+        this.courseManager = courseManager;
+        this.gradeManager = gradeManager;
+        this.attendanceManager = attendanceManager;
         createUI();
     }
 
@@ -144,13 +151,13 @@ class LoginUI {
         
         switch (role) {
             case ROLE_STUDENT:
-                new StudentDashboard(studentManager, authManager, studentManager, teacherManager);
+                new StudentDashboard(studentManager, authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager);
                 break;
             case ROLE_TEACHER:
-                new TeacherDashboard(studentManager, authManager, studentManager, teacherManager);
+                new TeacherDashboard(studentManager, authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager);
                 break;
             case ROLE_ADMIN:
-                new AdminDashboard(teacherManager, authManager, studentManager);
+                new AdminDashboard(teacherManager, authManager, studentManager, courseManager, gradeManager, attendanceManager);
                 break;
             default:
                 JOptionPane.showMessageDialog(null, "Unknown role: " + role);
@@ -220,11 +227,18 @@ class AdminDashboard {
     private TeacherManager teacherManager;
     private AuthManager authManager;
     private StudentManager studentManager;
+    private CourseManager courseManager;
+    private GradeManager gradeManager;
+    private AttendanceManager attendanceManager;
 
-    public AdminDashboard(TeacherManager teacherManager, AuthManager authManager, StudentManager studentManager) {
+    public AdminDashboard(TeacherManager teacherManager, AuthManager authManager, StudentManager studentManager,
+                          CourseManager courseManager, GradeManager gradeManager, AttendanceManager attendanceManager) {
         this.teacherManager = teacherManager;
         this.authManager = authManager;
         this.studentManager = studentManager;
+        this.courseManager = courseManager;
+        this.gradeManager = gradeManager;
+        this.attendanceManager = attendanceManager;
         
         JFrame frame = new JFrame("Admin Dashboard");
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -302,7 +316,7 @@ class AdminDashboard {
         gbc.gridy = 6;
         gbc.insets = new Insets(5, 10, 15, 10);
         JButton viewStudentsBtn = createFeatureButton("View All Students", PRIMARY_COLOR);
-        viewStudentsBtn.addActionListener(e -> new StudentDashboard(studentManager, authManager, studentManager, teacherManager));
+        viewStudentsBtn.addActionListener(e -> new StudentDashboard(studentManager, authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager));
         contentPanel.add(viewStudentsBtn, gbc);
 
         // Feature 4: System Statistics
@@ -345,7 +359,7 @@ class AdminDashboard {
         JButton logoutBtn = createFeatureButton("Logout", DANGER_COLOR);
         logoutBtn.addActionListener(e -> {
             frame.dispose();
-            new LoginUI(authManager, studentManager, teacherManager);
+            new LoginUI(authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager);
         });
         contentPanel.add(logoutBtn, gbc);
 
@@ -558,12 +572,19 @@ class StudentDashboard {
     private AuthManager authManager;
     private StudentManager studentManager;
     private TeacherManager teacherManager;
+    private CourseManager courseManager;
+    private GradeManager gradeManager;
+    private AttendanceManager attendanceManager;
 
     public StudentDashboard(StudentManager manager, AuthManager authManager, 
-                           StudentManager studentManager, TeacherManager teacherManager) {
+                           StudentManager studentManager, TeacherManager teacherManager,
+                           CourseManager courseManager, GradeManager gradeManager, AttendanceManager attendanceManager) {
         this.authManager = authManager;
         this.studentManager = studentManager;
         this.teacherManager = teacherManager;
+        this.courseManager = courseManager;
+        this.gradeManager = gradeManager;
+        this.attendanceManager = attendanceManager;
         
         JFrame frame = new JFrame("Student Dashboard");
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -627,7 +648,7 @@ class StudentDashboard {
         JButton logoutBtn = createStyledButton("Logout", ACCENT_COLOR);
         logoutBtn.addActionListener(e -> {
             frame.dispose();
-            new LoginUI(authManager, studentManager, teacherManager);
+            new LoginUI(authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager);
         });
 
         buttonPanel.add(loadBtn);
@@ -696,13 +717,20 @@ class TeacherDashboard {
     private AuthManager authManager;
     private StudentManager studentManager;
     private TeacherManager teacherManager;
+    private CourseManager courseManager;
+    private GradeManager gradeManager;
+    private AttendanceManager attendanceManager;
     private Student currentStudent;
 
     public TeacherDashboard(StudentManager manager, AuthManager authManager,
-                           StudentManager studentManager, TeacherManager teacherManager) {
+                           StudentManager studentManager, TeacherManager teacherManager,
+                           CourseManager courseManager, GradeManager gradeManager, AttendanceManager attendanceManager) {
         this.authManager = authManager;
         this.studentManager = studentManager;
         this.teacherManager = teacherManager;
+        this.courseManager = courseManager;
+        this.gradeManager = gradeManager;
+        this.attendanceManager = attendanceManager;
         this.currentStudent = null;
         
         JFrame frame = new JFrame("Teacher Dashboard");
@@ -869,7 +897,7 @@ class TeacherDashboard {
         JButton logoutBtn = createStyledButton("Logout", ACCENT_COLOR);
         logoutBtn.addActionListener(e -> {
             frame.dispose();
-            new LoginUI(authManager, studentManager, teacherManager);
+            new LoginUI(authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager);
         });
         scrollablePanel.add(logoutBtn, gbc);
 

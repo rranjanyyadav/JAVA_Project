@@ -77,6 +77,88 @@ class Teacher {
     public void setSubject(String subject) { this.subject = subject; }
 }
 
+/**
+ * Represents a course taught by a teacher.
+ */
+class Course {
+    private int id;
+    private String name;
+    private int teacherId;
+    private int credits;
+    private String schedule;
+
+    public Course(int id, String name, int teacherId, int credits, String schedule) {
+        this.id = id;
+        this.name = name;
+        this.teacherId = teacherId;
+        this.credits = credits;
+        this.schedule = schedule;
+    }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public int getTeacherId() { return teacherId; }
+    public void setTeacherId(int teacherId) { this.teacherId = teacherId; }
+    public int getCredits() { return credits; }
+    public void setCredits(int credits) { this.credits = credits; }
+    public String getSchedule() { return schedule; }
+    public void setSchedule(String schedule) { this.schedule = schedule; }
+}
+
+/**
+ * Represents student grades/marks.
+ */
+class Grade {
+    private int studentId;
+    private int courseId;
+    private double marks;
+    private String grade;
+    private String semester;
+
+    public Grade(int studentId, int courseId, double marks, String grade, String semester) {
+        this.studentId = studentId;
+        this.courseId = courseId;
+        this.marks = marks;
+        this.grade = grade;
+        this.semester = semester;
+    }
+
+    public int getStudentId() { return studentId; }
+    public void setStudentId(int studentId) { this.studentId = studentId; }
+    public int getCourseId() { return courseId; }
+    public void setCourseId(int courseId) { this.courseId = courseId; }
+    public double getMarks() { return marks; }
+    public void setMarks(double marks) { this.marks = marks; }
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
+    public String getSemester() { return semester; }
+    public void setSemester(String semester) { this.semester = semester; }
+}
+
+/**
+ * Represents attendance records.
+ */
+class Attendance {
+    private int studentId;
+    private String date;
+    private String status;
+
+    public Attendance(int studentId, String date, String status) {
+        this.studentId = studentId;
+        this.date = date;
+        this.status = status;
+    }
+
+    public int getStudentId() { return studentId; }
+    public void setStudentId(int studentId) { this.studentId = studentId; }
+    public String getDate() { return date; }
+    public void setDate(String date) { this.date = date; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+}
+
 // ==================== DATABASE HELPER ====================
 
 /**
@@ -115,6 +197,31 @@ class DatabaseHelper {
                     "id INTEGER PRIMARY KEY," +
                     "name TEXT NOT NULL," +
                     "subject TEXT NOT NULL)");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS courses (" +
+                    "id INTEGER PRIMARY KEY," +
+                    "name TEXT NOT NULL," +
+                    "teacher_id INTEGER NOT NULL," +
+                    "credits INTEGER NOT NULL," +
+                    "schedule TEXT NOT NULL," +
+                    "FOREIGN KEY (teacher_id) REFERENCES teachers(id))");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS grades (" +
+                    "student_id INTEGER NOT NULL," +
+                    "course_id INTEGER NOT NULL," +
+                    "marks REAL NOT NULL," +
+                    "grade TEXT NOT NULL," +
+                    "semester TEXT NOT NULL," +
+                    "PRIMARY KEY (student_id, course_id)," +
+                    "FOREIGN KEY (student_id) REFERENCES students(id)," +
+                    "FOREIGN KEY (course_id) REFERENCES courses(id))");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS attendance (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "student_id INTEGER NOT NULL," +
+                    "date TEXT NOT NULL," +
+                    "status TEXT NOT NULL," +
+                    "FOREIGN KEY (student_id) REFERENCES students(id))");
         } catch (SQLException e) {
             System.err.println("Table creation failed: " + e.getMessage());
         }
@@ -431,6 +538,275 @@ class TeacherManager {
     }
 }
 
+class CourseManager {
+    private final List<Course> courses;
+
+    public CourseManager() {
+        this.courses = new ArrayList<>();
+        loadCoursesFromDatabase();
+    }
+
+    private void loadCoursesFromDatabase() {
+        if (!DatabaseHelper.isDatabaseAvailable()) {
+            return;
+        }
+        try {
+            String query = "SELECT * FROM courses";
+            ResultSet rs = DatabaseHelper.executeQuery(query);
+            if (rs != null) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    int teacherId = rs.getInt("teacher_id");
+                    int credits = rs.getInt("credits");
+                    String schedule = rs.getString("schedule");
+                    courses.add(new Course(id, name, teacherId, credits, schedule));
+                }
+                rs.close();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading courses from database: " + e.getMessage());
+        }
+    }
+
+    public void addCourse(Course course) {
+        if (course != null) {
+            courses.add(course);
+            saveCourseToDB(course);
+        }
+    }
+
+    private void saveCourseToDB(Course course) {
+        if (!DatabaseHelper.isDatabaseAvailable()) return;
+        try {
+            String query = "INSERT OR REPLACE INTO courses (id, name, teacher_id, credits, schedule) VALUES (?, ?, ?, ?, ?)";
+            DatabaseHelper.executePreparedUpdate(query, String.valueOf(course.getId()), course.getName(), 
+                String.valueOf(course.getTeacherId()), String.valueOf(course.getCredits()), course.getSchedule());
+        } catch (Exception e) {
+            System.err.println("Error saving course to database: " + e.getMessage());
+        }
+    }
+
+    public List<Course> getAllCourses() {
+        return new ArrayList<>(courses);
+    }
+
+    public Course findById(int id) {
+        for (Course course : courses) {
+            if (course.getId() == id) return course;
+        }
+        return null;
+    }
+
+    public List<Course> getCoursesByTeacher(int teacherId) {
+        List<Course> result = new ArrayList<>();
+        for (Course course : courses) {
+            if (course.getTeacherId() == teacherId) result.add(course);
+        }
+        return result;
+    }
+}
+
+class GradeManager {
+    private final List<Grade> grades;
+
+    public GradeManager() {
+        this.grades = new ArrayList<>();
+        loadGradesFromDatabase();
+    }
+
+    private void loadGradesFromDatabase() {
+        if (!DatabaseHelper.isDatabaseAvailable()) return;
+        try {
+            String query = "SELECT * FROM grades";
+            ResultSet rs = DatabaseHelper.executeQuery(query);
+            if (rs != null) {
+                while (rs.next()) {
+                    int studentId = rs.getInt("student_id");
+                    int courseId = rs.getInt("course_id");
+                    double marks = rs.getDouble("marks");
+                    String grade = rs.getString("grade");
+                    String semester = rs.getString("semester");
+                    grades.add(new Grade(studentId, courseId, marks, grade, semester));
+                }
+                rs.close();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading grades from database: " + e.getMessage());
+        }
+    }
+
+    public void addGrade(Grade grade) {
+        if (grade != null) {
+            grades.add(grade);
+            saveGradeToDB(grade);
+        }
+    }
+
+    private void saveGradeToDB(Grade grade) {
+        if (!DatabaseHelper.isDatabaseAvailable()) return;
+        try {
+            String query = "INSERT OR REPLACE INTO grades (student_id, course_id, marks, grade, semester) VALUES (?, ?, ?, ?, ?)";
+            DatabaseHelper.executePreparedUpdate(query, String.valueOf(grade.getStudentId()), String.valueOf(grade.getCourseId()),
+                String.valueOf(grade.getMarks()), grade.getGrade(), grade.getSemester());
+        } catch (Exception e) {
+            System.err.println("Error saving grade to database: " + e.getMessage());
+        }
+    }
+
+    public List<Grade> getAllGrades() {
+        return new ArrayList<>(grades);
+    }
+
+    public List<Grade> getStudentGrades(int studentId) {
+        List<Grade> result = new ArrayList<>();
+        for (Grade grade : grades) {
+            if (grade.getStudentId() == studentId) result.add(grade);
+        }
+        return result;
+    }
+
+    public double calculateGPA(int studentId) {
+        List<Grade> studentGrades = getStudentGrades(studentId);
+        if (studentGrades.isEmpty()) return 0.0;
+        double total = 0.0;
+        for (Grade grade : studentGrades) {
+            total += convertGradeToPoints(grade.getGrade());
+        }
+        return total / studentGrades.size();
+    }
+
+    private double convertGradeToPoints(String grade) {
+        switch (grade) {
+            case "A": return 4.0;
+            case "B": return 3.0;
+            case "C": return 2.0;
+            case "D": return 1.0;
+            case "F": return 0.0;
+            default: return 0.0;
+        }
+    }
+}
+
+class AttendanceManager {
+    private final List<Attendance> attendanceRecords;
+
+    public AttendanceManager() {
+        this.attendanceRecords = new ArrayList<>();
+        loadAttendanceFromDatabase();
+    }
+
+    private void loadAttendanceFromDatabase() {
+        if (!DatabaseHelper.isDatabaseAvailable()) return;
+        try {
+            String query = "SELECT * FROM attendance";
+            ResultSet rs = DatabaseHelper.executeQuery(query);
+            if (rs != null) {
+                while (rs.next()) {
+                    int studentId = rs.getInt("student_id");
+                    String date = rs.getString("date");
+                    String status = rs.getString("status");
+                    attendanceRecords.add(new Attendance(studentId, date, status));
+                }
+                rs.close();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading attendance from database: " + e.getMessage());
+        }
+    }
+
+    public void addAttendance(Attendance attendance) {
+        if (attendance != null) {
+            attendanceRecords.add(attendance);
+            saveAttendanceToDB(attendance);
+        }
+    }
+
+    private void saveAttendanceToDB(Attendance attendance) {
+        if (!DatabaseHelper.isDatabaseAvailable()) return;
+        try {
+            String query = "INSERT INTO attendance (student_id, date, status) VALUES (?, ?, ?)";
+            DatabaseHelper.executePreparedUpdate(query, String.valueOf(attendance.getStudentId()),
+                attendance.getDate(), attendance.getStatus());
+        } catch (Exception e) {
+            System.err.println("Error saving attendance to database: " + e.getMessage());
+        }
+    }
+
+    public List<Attendance> getStudentAttendance(int studentId) {
+        List<Attendance> result = new ArrayList<>();
+        for (Attendance record : attendanceRecords) {
+            if (record.getStudentId() == studentId) result.add(record);
+        }
+        return result;
+    }
+
+    public double calculateAttendancePercentage(int studentId) {
+        List<Attendance> records = getStudentAttendance(studentId);
+        if (records.isEmpty()) return 0.0;
+        int presentCount = 0;
+        for (Attendance record : records) {
+            if ("Present".equals(record.getStatus())) presentCount++;
+        }
+        return (presentCount * 100.0) / records.size();
+    }
+
+    public List<Attendance> getAllAttendance() {
+        return new ArrayList<>(attendanceRecords);
+    }
+}
+
+class CSVExporter {
+    public static void exportStudents(List<Student> students, String filename) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(filename)) {
+            writer.write("ID,Name,Semester\n");
+            for (Student s : students) {
+                writer.write(s.getId() + "," + s.getName() + "," + s.getSemester() + "\n");
+            }
+            System.out.println("Students exported to " + filename);
+        } catch (Exception e) {
+            System.err.println("Error exporting students: " + e.getMessage());
+        }
+    }
+
+    public static void exportTeachers(List<Teacher> teachers, String filename) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(filename)) {
+            writer.write("ID,Name,Subject\n");
+            for (Teacher t : teachers) {
+                writer.write(t.getId() + "," + t.getName() + "," + t.getSubject() + "\n");
+            }
+            System.out.println("Teachers exported to " + filename);
+        } catch (Exception e) {
+            System.err.println("Error exporting teachers: " + e.getMessage());
+        }
+    }
+
+    public static void exportGrades(List<Grade> grades, String filename) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(filename)) {
+            writer.write("StudentID,CourseID,Marks,Grade,Semester\n");
+            for (Grade g : grades) {
+                writer.write(g.getStudentId() + "," + g.getCourseId() + "," + g.getMarks() + ","
+                    + g.getGrade() + "," + g.getSemester() + "\n");
+            }
+            System.out.println("Grades exported to " + filename);
+        } catch (Exception e) {
+            System.err.println("Error exporting grades: " + e.getMessage());
+        }
+    }
+
+    public static void exportAttendance(List<Attendance> records, String filename) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(filename)) {
+            writer.write("StudentID,Date,Status\n");
+            for (Attendance a : records) {
+                writer.write(a.getStudentId() + "," + a.getDate() + "," + a.getStatus() + "\n");
+            }
+            System.out.println("Attendance exported to " + filename);
+        } catch (Exception e) {
+            System.err.println("Error exporting attendance: " + e.getMessage());
+        }
+    }
+}
+
 // ==================== MAIN CLASS ====================
 
 /**
@@ -451,6 +827,9 @@ public class SMS_Consolidated {
         StudentManager studentManager = new StudentManager();
         TeacherManager teacherManager = new TeacherManager();
         AuthManager authManager = new AuthManager();
+        CourseManager courseManager = new CourseManager();
+        GradeManager gradeManager = new GradeManager();
+        AttendanceManager attendanceManager = new AttendanceManager();
         
         // Add default users if they don't exist
         if (authManager.login("student1", "123") == null) {
@@ -464,6 +843,6 @@ public class SMS_Consolidated {
         }
 
         // Launch login UI with all managers
-        new LoginUI(authManager, studentManager, teacherManager);
+        new LoginUI(authManager, studentManager, teacherManager, courseManager, gradeManager, attendanceManager);
     }
 }
