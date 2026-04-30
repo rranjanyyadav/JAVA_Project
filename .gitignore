@@ -1,6 +1,5 @@
 # Compiled Java files
 *.class
-*.jar
 *.jar.original
 
 # IDE
@@ -44,5 +43,4 @@ graphify_final.py
 .graphify_semantic.json
 
 # Dependencies
-sqlite-jdbc*.jar
-slf4j-*.jar
+
